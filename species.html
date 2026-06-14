@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台灣竹節蟲物種圖鑑</title>
+<style>
+  :root {
+    --bg: #f5f7f0;
+    --card-bg: #fff;
+    --accent: #3a7d44;
+    --accent-light: #e8f5e9;
+    --accent2: #1b5e20;
+    --text: #2c3e2d;
+    --muted: #6c7e6d;
+    --border: #d0dbd1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system,"Noto Sans TC",sans-serif; background:var(--bg); color:var(--text); }
+
+  /* ── Header ── */
+  header {
+    background: var(--accent); color: white;
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  header h1 { font-size: 1.15rem; font-weight: 700; }
+  header .subtitle { font-size: .78rem; opacity: .8; }
+  nav.header-nav { margin-left: auto; display: flex; gap: .8rem; }
+  nav.header-nav a {
+    color: rgba(255,255,255,.85); text-decoration: none;
+    font-size: .85rem; padding: .25rem .7rem;
+    border-radius: 999px; border: 1px solid rgba(255,255,255,.4);
+    transition: background .15s;
+  }
+  nav.header-nav a:hover, nav.header-nav a.active { background: rgba(255,255,255,.2); color: white; }
+
+  /* ── Layout ── */
+  .layout { display: flex; }
+  aside {
+    width: 220px; min-width: 220px;
+    background: var(--card-bg); border-right: 1px solid var(--border);
+    padding: 1rem .8rem;
+    height: calc(100vh - 58px); overflow-y: auto;
+    position: sticky; top: 58px;
+  }
+  aside h2 { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .5rem; }
+  .sp-nav-list { list-style: none; }
+  .sp-nav-list li a {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: .3rem .5rem; border-radius: 6px;
+    text-decoration: none; color: var(--text); font-size: .85rem;
+    transition: background .12s;
+  }
+  .sp-nav-list li a:hover { background: var(--accent-light); }
+  .sp-nav-list li a.active { background: var(--accent); color: white; }
+  .sp-nav-list li a .cnt {
+    font-size: .72rem; background: rgba(0,0,0,.08);
+    border-radius: 999px; padding: .05rem .4rem;
+  }
+  .sp-nav-list li a.active .cnt { background: rgba(255,255,255,.25); }
+
+  main { flex: 1; padding: 1.2rem; overflow-y: auto; }
+
+  /* ── Species section ── */
+  .sp-section {
+    background: var(--card-bg);
+    border-radius: 12px; border: 1px solid var(--border);
+    margin-bottom: 2rem; overflow: hidden;
+    scroll-margin-top: 70px;
+  }
+  .sp-header {
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 1rem; align-items: flex-start;
+  }
+  .sp-name { font-size: 1.5rem; font-weight: 700; color: var(--accent2); }
+  .sp-latin { font-size: .9rem; color: var(--muted); font-style: italic; margin-top: .15rem; }
+  .sp-badges { display: flex; gap: .5rem; margin-top: .5rem; flex-wrap: wrap; }
+  .badge {
+    display: inline-block; padding: .15rem .55rem;
+    border-radius: 999px; font-size: .72rem;
+    background: var(--accent-light); color: var(--accent2);
+    border: 1px solid #c8e6c9;
+  }
+  .sp-count-badge {
+    margin-left: auto; text-align: right; white-space: nowrap;
+    font-size: .85rem; color: var(--muted);
+    min-width: 70px;
+  }
+  .sp-count-badge strong { display: block; font-size: 1.8rem; color: var(--accent); }
+
+  /* ── Photo gallery ── */
+  .sp-gallery {
+    display: flex; gap: 4px; overflow-x: auto;
+    padding: 0; background: #111;
+    max-height: 280px;
+  }
+  .sp-gallery img {
+    height: 260px; width: auto;
+    object-fit: cover; flex-shrink: 0;
+    cursor: pointer;
+  }
+  .no-photo {
+    display: flex; align-items: center; justify-content: center;
+    height: 140px; background: var(--accent-light);
+    font-size: 3rem;
+  }
+
+  /* ── Info grid ── */
+  .sp-body { padding: 1.2rem 1.4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  @media(max-width:700px){ .sp-body { grid-template-columns: 1fr; } }
+  .sp-section-label {
+    font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); margin-bottom: .5rem; font-weight: 600;
+  }
+
+  /* ── Notes ── */
+  .notes-list { list-style: none; }
+  .notes-list li {
+    padding: .45rem .6rem; border-radius: 6px;
+    background: var(--accent-light); margin-bottom: .35rem;
+    font-size: .84rem; line-height: 1.55; color: var(--text);
+    border-left: 3px solid var(--accent);
+  }
+  .no-notes { font-size: .84rem; color: var(--muted); font-style: italic; }
+
+  /* ── Location tags ── */
+  .loc-tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .loc-tag {
+    display: inline-block; padding: .2rem .6rem;
+    background: #f0f4f1; border: 1px solid var(--border);
+    border-radius: 999px; font-size: .8rem; color: var(--text);
+  }
+  .loc-tag::before { content: "📍 "; }
+
+  /* ── Records mini-list ── */
+  .records-row {
+    display: flex; gap: .6rem; overflow-x: auto; padding-bottom: .4rem;
+  }
+  .rec-mini {
+    min-width: 130px; max-width: 130px;
+    border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; background: var(--bg);
+    text-decoration: none; color: var(--text); display: block;
+    transition: box-shadow .12s;
+    flex-shrink: 0;
+  }
+  .rec-mini:hover { box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .rec-mini img { width: 100%; height: 80px; object-fit: cover; display: block; }
+  .rec-mini-noimg { width: 100%; height: 80px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+  .rec-mini-body { padding: .35rem .4rem; font-size: .72rem; color: var(--muted); }
+  .rec-mini-body strong { display: block; color: var(--text); margin-bottom: .1rem; font-size: .77rem; }
+
+  /* ── lightbox ── */
+  #lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:500;
+        justify-content:center; align-items:center; }
+  #lb.open { display:flex; }
+  #lb img { max-width:92vw; max-height:90vh; border-radius:6px; object-fit:contain; }
+  #lb-close { position:fixed; top:1rem; right:1.2rem; color:white; font-size:2rem; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🌿 台灣竹節蟲物種圖鑑
+    <div class="subtitle">節節高升社團野外觀察紀錄</div>
+  </div>
+  <nav class="header-nav">
+    <a href="index.html">野外觀察紀錄</a>
+    <a href="species.html" class="active">物種圖鑑</a>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside>
+    <h2>物種列表</h2>
+    <ul class="sp-nav-list" id="sp-nav"></ul>
+  </aside>
+  <main id="main-content"></main>
+</div>
+
+<div id="lb" onclick="closeLb()">
+  <span id="lb-close">✕</span>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<script>
+const SPECIES = [{"name": "皮竹節蟲", "latin": "Phraortes spp.", "family": "長角棒䗛科 Diapheromeridae", "note": "包含雙色皮竹節蟲、粗粒皮竹節蟲等多種", "count": 27, "locations": ["植物園", "步道", "自然公園", "海拔", "桃園", "屏東"], "photos": ["e1b78149887b0dad.jpg", "2f5e34226c5addb9.jpg", "ab37b0ac232d39f6.jpg", "b81dae9e96e50e4e.jpg", "b67689e04a8b7d3d.jpg", "2ed49b5f65b5797b.jpg"], "notes": ["皮竹節蟲屬，也稱皮䗛屬，是長角竹節蟲科的一屬昆蟲。", "這是長肛竹節蟲喔，皮竹節蟲的觸角會長於前足腿節。", "這隻是皮竹節蟲喔，長肛的觸角不會這麼長。", "最重要的腹部末端不是沒拍到就是太糊了，但第二隻可以辨識，是皮竹節蟲", "言午木由子 不是喔，皮竹節蟲沒有翅，第一張照片是有翅的，請看清楚", "#皮竹節蟲Phraortes sp.，兩複眼間具黑色橫帶，左右各有一個刺突。", "這是皮竹節蟲雌蟲，另外長肛頭上有角也很正常，這兩種觸角長度跟腹部末端的形狀很明顯不一樣", "觸角長，細節沒有拍得很清楚，應該是皮竹節蟲 Phraortes sp.。", "皮竹節蟲感謝張家銘前輩的確認。2023/06/23于陽明山二子坪步道"], "records": [{"post_id": "3458893540930912", "author": "孫國鈞", "text_preview": "皮竹節蟲屬，也稱皮䗛屬，是長角竹節蟲科的一屬昆蟲。 2026/5/7 猴崁步道", "location": "步道", "img": "e1b78149887b0dad.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3458893540930912"}, {"post_id": "3161880550632214", "author": "孫國鈞", "text_preview": "請問 這兩隻都是皮竹節蟲嗎？ 2025/8 大屯自然公園（陽明山）", "location": "自然公園", "img": "ab37b0ac232d39f6.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3161880550632214"}, {"post_id": "3173889399431329", "author": "徐彥承", "text_preview": "20250816 屏東大漢山 9k 野棉花上發現 有沒有大神知道這是哪種竹節蟲？", "location": "屏東", "img": "b67689e04a8b7d3d.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3173889399431329"}, {"post_id": "3133473133472956", "author": "羅美玲", "text_preview": "2025/7/8東眼山 請教物種  雌?雄?", "location": "東眼山", "img": "edb0e2e7fe1b04f3.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3133473133472956"}, {"post_id": "3118910648262538", "author": "孫國鈞", "text_preview": "求名  #皮竹節蟲 大屯自然公園2025/6/24", "location": "自然公園", "img": "a8466e1ec965ab50.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3118910648262538"}, {"post_id": "3106454146174855", "author": "孫國鈞", "text_preview": "#皮竹節蟲  2025/6/14 大屯自然公園", "location": "自然公園", "img": "783bb82c8b87ed00.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3106454146174855"}, {"post_id": "3091550980998505", "author": "葉盛隆  · 追蹤", "text_preview": "請問竹節蟲種類？在山櫻花上發現不少，海拔1000公尺。", "location": "海拔", "img": "82fb66cd1be36309.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3091550980998505"}, {"post_id": "3089432964543640", "author": "湯興漢", "text_preview": "2025.06.01，新店二叭子植物園，請問這是雙色皮竹節蟲的公蟲跟母蟲嗎？", "location": "植物園", "img": "9437609e3e5d9f77.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3089432964543640"}, {"post_id": "3075436892609914", "author": "歐庭愷", "text_preview": "請教可能分類群2025.05.17 屏東瑪家兩隻若蟲是在殼斗科上發現…… 查看更多", "location": "屏東", "img": "f8dcc758fe77a5c7.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3075436892609914"}, {"post_id": "3060793587407578", "author": "湯興漢", "text_preview": "2025.05.04，基隆自強產業道路，請問這是那種竹節蟲？櫻花樹上看到的....", "location": "基隆", "img": "2f58a40dc5fad277.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3060793587407578"}, {"post_id": "2856073954546210", "author": "鍾秉霖", "text_preview": "請問一下，這是哪一種竹節蟲？在海拔2400m左右遇到！謝謝！", "location": "海拔", "img": "73e4edabc39b520e.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2856073954546210"}, {"post_id": "2755016671318606", "author": "孫國鈞", "text_preview": "謝謝指導擎天崗跟二子坪這兩張圖是長肛竹節蟲沒錯，冷水坑則是皮竹節蟲。擎天崗 冷水坑 二子坪 2024/7/4（夜拍三個地方拍的）", "location": "二子坪", "img": "70201de455a19e87.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2755016671318606"}, {"post_id": "2749071941913079", "author": "Formosa Pan", "text_preview": "請教物種名？  皮竹節蟲(雄成蟲)  感謝林彧綦前輩的指導。  2024/06/26于新北市新店區二趴子植物園", "location": "植物園", "img": "48bad37eac14256a.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2749071941913079"}, {"post_id": "2741721025981504", "author": "孫國鈞", "text_preview": "#皮竹節蟲Phraortes sp.  陽明山地區 2024/6", "location": "陽明山", "img": "b8975da92ece38ae.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2741721025981504"}, {"post_id": "2739030586250548", "author": "孫國鈞", "text_preview": "皮竹節蟲 雄成蟲（右圖局放） 陽明山二子坪 2024/6⋯", "location": "陽明山", "img": "494b469621dc4960.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2739030586250548"}, {"post_id": "2737013973118876", "author": "湯興漢", "text_preview": "2024.06.10，新店二叭子植物園，請問這是甚麼竹節蟲？", "location": "植物園", "img": "514791fba7ed26a6.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2737013973118876"}, {"post_id": "2736023559884584", "author": "湯興漢", "text_preview": "20240609，新店二叭子植物園，請問這是甚麼竹節蟲？挺大隻的，超過10cm....", "location": "植物園", "img": "e7ba4490fdc53a29.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2736023559884584"}, {"post_id": "2567835176703424", "author": "Formosa Pan", "text_preview": "請教物種名？2023/10/07于新北市新店區二趴子植物園", "location": "植物園", "img": "4a96c26d8b014450.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2567835176703424"}, {"post_id": "2565928733560735", "author": "呂清", "text_preview": "今天在台中海拔約2200多的地方遇到的翻了下圖鑑和嘎嘎猜測可能是長肛，但頭上的兩個小突起沒有對得上的想請問這邊板上的前輩這隻可能是什麼竹節蟲", "location": "海拔", "img": "c70efd6d73968200.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2565928733560735"}, {"post_id": "2541894329297509", "author": "李鍾旻  · 追蹤", "text_preview": "2023/8/14@猴崁古道 觸角長，細節沒有拍得很清楚，應該是皮竹節蟲 Phraortes sp.。", "location": "猴崁", "img": "827660a25335261f.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2541894329297509"}]}, {"name": "長肛竹節蟲", "latin": "Entoria spp.", "family": "長角棒䗛科 Diapheromeridae", "note": "台灣多種長肛竹節蟲的統稱", "count": 8, "locations": ["植物園", "屏東", "步道", "林道", "台東", "台北"], "photos": ["629544cefcc32fd4.jpg", "9db7daaa70342ca9.jpg", "4c72a3b45d6e337d.jpg", "e3a660020c13ab83.jpg", "ed72cf002f978228.jpg", "b883de7bb2a1b857.jpg"], "notes": ["1.台灣到底有幾個長肛竹節蟲屬的物種？我看台灣物種名錄裡顯示有12種，但其中有不少種在TBN與台灣生命大百科上缺乏觀測紀錄與相關資料，或是在網路上幾乎找不到任何圖片與資訊。目前資訊比較多的只有台灣、台北、銅門與恆春四個物種而已。", "關於長肛竹節蟲的幾個疑惑：1.台灣到底有幾個長肛竹節蟲屬的物種？我看台灣物種名錄裡顯示有12種，但其中有不少種在TBN與台灣生命大百科上缺乏觀測紀錄與相關資料，或是在網路上幾乎找不到任何圖片與資訊。目前資訊比較多的只有台灣、台北、銅門與恆春四個物種而已。2.長肛的雄蟲有幾個齡？我記得雄蟲的齡期通常會比雌蟲少，我自己數出來應該是6個，但我不太確定。…… …"], "records": [{"post_id": "3452386691581597", "author": "湯興漢", "text_preview": "2026.05.01，二叭子植物園，請問這是那種竹節蟲？", "location": "植物園", "img": "629544cefcc32fd4.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3452386691581597"}, {"post_id": "3109521715868098", "author": "李宏傑", "text_preview": "以下0520屏東拍攝，詢問一下竹節蟲，這次部分屁股有拍好一點。 圖1～2：同隻，津田氏？ 圖2～3：同隻 圖3：？", "location": "屏東", "img": "9db7daaa70342ca9.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3109521715868098"}, {"post_id": "2995316997288571", "author": "湯興漢", "text_preview": "2025.03.09，新店二叭子植物園，請問這是哪種竹節蟲？", "location": "植物園", "img": "a710d41b273fbdd3.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2995316997288571"}, {"post_id": "2994553747364896", "author": "湯興漢", "text_preview": "2025.03.08，新店和美山步道，請問這是那種竹節蟲？", "location": "步道", "img": "7f744250e4ec944a.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2994553747364896"}, {"post_id": "2915066051980333", "author": "柏諺", "text_preview": "2024/12/08 台東利嘉林道 想問名字", "location": "林道", "img": "ac1bdc1afed35112.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2915066051980333"}, {"post_id": "2877254562428149", "author": "廖子為", "text_preview": "屏東2024.10.26 請教種類", "location": "屏東", "img": "6b63b1be91fe4f04.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2877254562428149"}, {"post_id": "2768649743288632", "author": "韓羲之", "text_preview": "請教竹節蟲, 謝謝林彧綦網大: #長肛竹節蟲屬(Entoria). 24.7.台東.", "location": "台東", "img": "72f38397d7cfc35f.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2768649743288632"}, {"post_id": "2683119045175036", "author": "林彧綦", "text_preview": "關於長肛竹節蟲的幾個疑惑：1.台灣到底有幾個長肛竹節蟲屬的物種？我看台灣物種名錄裡顯示有12種，但其中有不少種在TBN與台灣生命大百科上缺乏觀測紀錄與相關資料，或是在網路上幾乎找不到任何圖片與資訊。目", "location": "台北", "img": "80c5cafb3c99b462.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2683119045175036"}]}, {"name": "短肛竹節蟲", "latin": "Ramulus irregulariterdentatus", "family": "竹節蟲科 Phasmatidae", "note": "", "count": 5, "locations": ["步道", "拉拉山", "烏來", "桃園"], "photos": ["8f3985ccd370e8c7.jpg", "3f33f2e7a2579009.jpg", "dc2ee044fa0f0ba7.jpg", "2401a9bedbc17a13.jpg", "9e6ac6d1e858319f.jpg", "7977e49f616c4cb6.jpg"], "notes": [], "records": [{"post_id": "3430125363807730", "author": "湯興漢", "text_preview": "2026.04.10，拉拉山遊客中心地質館，請問這是甚麼竹節蟲？", "location": "拉拉山", "img": "8f3985ccd370e8c7.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3430125363807730"}, {"post_id": "2909355669218038", "author": "Izumi Wang", "text_preview": "想請問名字，謝謝！ 2024/11/30 烏來福山", "location": "烏來", "img": "3f33f2e7a2579009.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2909355669218038"}, {"post_id": "2763186660501607", "author": "孫國鈞", "text_preview": "#短肛竹節蟲？？？ 二子坪步道 2024/7/14", "location": "步道", "img": "dc2ee044fa0f0ba7.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2763186660501607"}, {"post_id": "2591663677653907", "author": "張君基", "text_preview": "2023.11.12  桃園大溪，請問這是什麼竹節蟲？謝謝", "location": "桃園", "img": "a4cbbbc0ab911eda.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2591663677653907"}, {"post_id": "2566457716841170", "author": "孫國鈞", "text_preview": "#短肛竹節蟲翠山步道 2023/10/5", "location": "步道", "img": "34798238539ce76a.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2566457716841170"}]}, {"name": "未知", "latin": "", "family": "", "note": "", "count": 3, "locations": ["力行", "屏東", "新北"], "photos": ["7e6822a31a85c275.jpg", "f4575c11fdfb3e4c.jpg", "edee219be3e070b9.jpg", "fbbbfa001344ca35.jpg", "652539d8b0bc867f.jpg", "01002b069e5d3f17.jpg"], "notes": [], "records": [{"post_id": "3180074785479457", "author": "張皓軒", "text_preview": "想請教可能的分類群，8月力行，有翅膀，感謝", "location": "力行", "img": "7e6822a31a85c275.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3180074785479457"}, {"post_id": "3109965665823703", "author": "歐庭愷", "text_preview": "請教可能分類群 2025.06.07 屏東德文觀望山 謝謝", "location": "屏東", "img": "edee219be3e070b9.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3109965665823703"}, {"post_id": "2670370323116575", "author": "林彧綦", "text_preview": "今天再次回到之前找到長肛的同一地點，希望能再帶幾隻雌蟲回去，解決雌雄比例懸殊的問題，結果雌蟲沒找到，反倒是找到了之前沒見過的物種...從其觸角明顯較長這點來看，應該是屬於長角棒䗛科皮䗛屬，但不確定具體", "location": "新北", "img": "652539d8b0bc867f.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2670370323116575"}]}, {"name": "截角華竹節蟲", "latin": "Sinophasma truncatum", "family": "竹節蟲科 Phasmatidae", "note": "與截角小異竹節蟲外觀相似", "count": 3, "locations": ["七星山", "步道", "陽明山"], "photos": ["077676794f25fcee.jpg", "881b63631f6f9a04.jpg", "e3d5f4612178ae50.jpg", "b5321556d3429a3e.jpg", "aaa966457232e937.jpg", "783740ae8bc8caec.jpg"], "notes": ["與楚南氏小異竹節蟲、截角華竹節蟲、不知名皮䗛屬"], "records": [{"post_id": "2753468754806731", "author": "曾粲然", "text_preview": "請問是否為截角華竹節蟲Sinophasma truncating？感謝～七星山2024.7.1", "location": "七星山", "img": "077676794f25fcee.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2753468754806731"}, {"post_id": "2483162898503986", "author": "孫國鈞", "text_preview": "#截角華竹節蟲 2023/6/9陽明山苗圃步道 25°09'30.1\"N 121°32'49.5\"E", "location": "步道", "img": "e3d5f4612178ae50.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2483162898503986"}, {"post_id": "2479995888820687", "author": "葉宜欣", "text_preview": "請問這是截角華竹節蟲嗎？ 謝謝 112.6.5陽明山二子坪", "location": "陽明山", "img": "783740ae8bc8caec.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2479995888820687"}]}, {"name": "素木瘤竹節蟲", "latin": "Paramyronides shirakii", "family": "竹節蟲科 Phasmatidae", "note": "又稱素木氏瘤竹節蟲", "count": 2, "locations": ["新北", "野外"], "photos": ["31c79dcb981243f3.jpg", "96d444c71ccead59.jpg", "9b6fc966030cb523.jpg", "3c32e736512b2c7b.jpg"], "notes": ["11502新北拍攝，這是素木瘤竹節蟲嗎"], "records": [{"post_id": "3422818661205067", "author": "李宏傑", "text_preview": "11502新北拍攝，這是素木瘤竹節蟲嗎？", "location": "新北", "img": "31c79dcb981243f3.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3422818661205067"}, {"post_id": "2762086447278295", "author": "廖正智", "text_preview": "在野外該怎麽去找竹節蟲，它若不是待在不屬於擬態的環境，真的比螳螂要難找到它", "location": "野外", "img": "3c32e736512b2c7b.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2762086447278295"}]}, {"name": "台灣長肛竹節蟲", "latin": "Entoria taiwanensis", "family": "長角棒䗛科 Diapheromeridae", "note": "", "count": 2, "locations": ["自然公園", "陽明山"], "photos": ["5487c194cbb41418.jpg", "23f0472779ba18b0.jpg", "9cfeba16a24bd20b.jpg", "9e520169a6d64202.jpg", "93687517f0aa5457.jpg", "25cbc55a18caf0a9.jpg"], "notes": [], "records": [{"post_id": "2792696524217287", "author": "孫國鈞", "text_preview": "#台灣長肛竹節蟲？？？大屯自然公園 2024/8/18", "location": "自然公園", "img": "5487c194cbb41418.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2792696524217287"}, {"post_id": "2748175425336064", "author": "孫國鈞", "text_preview": "台灣長肛竹節蟲？？？ 陽明山夢幻湖戰備道 2024/6", "location": "陽明山", "img": "9e520169a6d64202.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2748175425336064"}]}, {"name": "日本棘竹節蟲", "latin": "Neohirasea japonicus", "family": "竹節蟲科 Phasmatidae", "note": "又稱日本棘䗛", "count": 2, "locations": ["步道"], "photos": ["b08979ada5385f8c.jpg", "c71cbb86f4a6150f.jpg", "34a71bf8fe165c9c.jpg", "032d0879d9b458ad.jpg", "a15b41ab6c9a9923.jpg", "532afeacec22653b.jpg"], "notes": ["#日本棘竹節蟲 （雌 ）面天坪步道 2023/6/18"], "records": [{"post_id": "2763185293835077", "author": "孫國鈞", "text_preview": "#日本棘竹節蟲？？？2024/7/14 二子坪步道", "location": "步道", "img": "b08979ada5385f8c.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2763185293835077"}, {"post_id": "2490371851116424", "author": "孫國鈞", "text_preview": "#日本棘竹節蟲  （雌 ）面天坪步道 2023/6/18", "location": "步道", "img": "032d0879d9b458ad.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2490371851116424"}]}, {"name": "楚南氏小異竹節蟲", "latin": "Micadina tsuyukii", "family": "竹節蟲科 Phasmatidae", "note": "", "count": 1, "locations": ["海拔"], "photos": ["5577b17743792756.jpg", "18375faf4a56b9e1.jpg", "fd85dc0154e62bc2.jpg", "35cdac37dcda0f8c.jpg", "305ddb14e55b280c.jpg"], "notes": ["於不知名殼斗科上搖下了許多擬瓦腹小異竹節蟲、楚南氏小異竹節蟲及截角小異竹節蟲"], "records": [{"post_id": "3113323278821275", "author": "Tony Yang", "text_preview": "北部海拔約800多公尺處 於不知名殼斗科上搖下了許多擬瓦腹小異竹節蟲、楚南氏小異竹節蟲及截角小異竹節蟲 留言有殼斗科長相，不知道有沒有植物專家認得出來！？", "location": "海拔", "img": "5577b17743792756.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3113323278821275"}]}, {"name": "粗粒皮竹節蟲", "latin": "Phraortes aspera", "family": "長角棒䗛科 Diapheromeridae", "note": "", "count": 1, "locations": ["步道"], "photos": ["e0b5f0a32848ec52.jpg"], "notes": [], "records": [{"post_id": "3110085772478359", "author": "王介立", "text_preview": "請教可能的分類群  2025.06.16 台北內湖圓覺寺步道", "location": "步道", "img": "e0b5f0a32848ec52.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/3110085772478359"}]}, {"name": "素木氏瘤竹節蟲", "latin": "Paramyronides shirakii", "family": "竹節蟲科 Phasmatidae", "note": "", "count": 1, "locations": ["新竹"], "photos": ["d278e820af85f717.jpg"], "notes": [], "records": [{"post_id": "2897448980408707", "author": "徐志文", "text_preview": "請問? 猜是素木氏瘤竹節蟲 1131119新竹內灣", "location": "新竹", "img": "d278e820af85f717.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2897448980408707"}]}, {"name": "擬瓦腹華竹節蟲", "latin": "Sinophasma pseudophasma", "family": "竹節蟲科 Phasmatidae", "note": "", "count": 1, "locations": ["海拔"], "photos": ["49b7b38b2535eacd.jpg", "9944f4cd1260312d.jpg", "c67ba2842e0cb6f1.jpg", "49c22a118f9935c2.jpg"], "notes": ["2024.08擬瓦腹華竹節蟲雌成蟲觀察於新北三峽海拔約900m山區之前也曾在此棲地觀察過擬瓦腹華雄成蟲…… 查看更多"], "records": [{"post_id": "2800527800100826", "author": "Tony Yang", "text_preview": "2024.08擬瓦腹華竹節蟲雌成蟲觀察於新北三峽海拔約900m山區之前也曾在此棲地觀察過擬瓦腹華雄成蟲…… 查看更多", "location": "海拔", "img": "49b7b38b2535eacd.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2800527800100826"}]}, {"name": "小異竹節蟲", "latin": "Micadina spp.", "family": "竹節蟲科 Phasmatidae", "note": "", "count": 1, "locations": ["海拔"], "photos": ["1a5bf6b2234bf99b.jpg", "d28f2b180da33ef0.jpg"], "notes": ["翻閱《台灣的竹節蟲》後，由像銅環的尾毛這個特徵猜測可能是楚南式小異竹節蟲，但分佈海拔遠高於書中所述的1200公尺，所以來社團請教各位前輩這隻是否為楚南式小異竹節蟲", "8/2攝於台中山區，海拔約2100公尺由照片中的比例尺可知體長不到8公分現場沒注意，回來看照片判斷應該是成蟲翻閱《台灣的竹節蟲》後，由像銅環的尾毛這個特徵猜測可能是楚南式小異竹節蟲，但分佈海拔遠高於書中所述的1200公尺，所以來社團請教各位前輩這隻是否為楚南式小異竹節蟲"], "records": [{"post_id": "2781759901977616", "author": "呂清", "text_preview": "8/2攝於台中山區，海拔約2100公尺由照片中的比例尺可知體長不到8公分現場沒注意，回來看照片判斷應該是成蟲翻閱《台灣的竹節蟲》後，由像銅環的尾毛這個特徵猜測可能是楚南式小異竹節蟲，但分佈海拔遠高於書", "location": "海拔", "img": "1a5bf6b2234bf99b.jpg", "post_url": "https://www.facebook.com/groups/506259886194307/posts/2781759901977616"}]}];
+
+function buildNav() {
+  const nav = document.getElementById("sp-nav");
+  SPECIES.forEach((sp, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="#sp-${i}">
+      ${sp.name} <span class="cnt">${sp.count}</span>
+    </a>`;
+    nav.appendChild(li);
+  });
+  // Highlight active on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        document.querySelectorAll(".sp-nav-list a").forEach(a => {
+          a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll(".sp-section").forEach(s => observer.observe(s));
+}
+
+function buildSections() {
+  const main = document.getElementById("main-content");
+  main.innerHTML = SPECIES.map((sp, i) => {
+    // Photos
+    const galleryHtml = sp.photos.length
+      ? sp.photos.map(fn => `<img src="images/${fn}" onclick="openLb(this.src)" alt="${sp.name}">`).join("")
+      : `<div class="no-photo">🦗</div>`;
+
+    // Notes
+    const notesHtml = sp.notes.length
+      ? `<ul class="notes-list">${sp.notes.map(n => `<li>${escHtml(n)}</li>`).join("")}</ul>`
+      : `<p class="no-notes">目前尚無社群識別筆記（貼文留言中未找到明確特徵描述）</p>`;
+
+    // Locations
+    const locsHtml = sp.locations.length
+      ? `<div class="loc-tags">${sp.locations.map(l => `<span class="loc-tag">${l}</span>`).join("")}</div>`
+      : `<span class="no-notes">—</span>`;
+
+    // Records mini
+    const recsHtml = sp.records.map(r => {
+      const imgPart = r.img && sp.photos.includes(r.img)
+        ? `<img src="images/${r.img}" alt="">`
+        : `<div class="rec-mini-noimg">🦗</div>`;
+      return `<a class="rec-mini" href="${r.post_url}" target="_blank">
+        ${imgPart}
+        <div class="rec-mini-body">
+          <strong>${escHtml(r.author)}</strong>
+          ${escHtml(r.location || "")} ${escHtml((r.text_preview || "").slice(0, 40))}
+        </div>
+      </a>`;
+    }).join("");
+
+    const noteBadge = sp.note ? `<span class="badge">${sp.note}</span>` : "";
+    const familyBadge = sp.family ? `<span class="badge">${sp.family}</span>` : "";
+
+    return `
+    <section class="sp-section" id="sp-${i}">
+      <div class="sp-header">
+        <div>
+          <div class="sp-name">${sp.name}</div>
+          <div class="sp-latin">${sp.latin || ""}</div>
+          <div class="sp-badges">${familyBadge}${noteBadge}</div>
+        </div>
+        <div class="sp-count-badge">
+          <strong>${sp.count}</strong>筆紀錄
+        </div>
+      </div>
+
+      <div class="sp-gallery">${galleryHtml}</div>
+
+      <div class="sp-body">
+        <div>
+          <div class="sp-section-label">🔍 社群識別筆記</div>
+          ${notesHtml}
+        </div>
+        <div>
+          <div class="sp-section-label">📍 常見觀察地點</div>
+          ${locsHtml}
+
+          ${sp.records.length ? `
+          <div class="sp-section-label" style="margin-top:1rem">📋 觀察紀錄</div>
+          <div class="records-row">${recsHtml}</div>` : ""}
+        </div>
+      </div>
+    </section>`;
+  }).join("");
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function openLb(src) {
+  document.getElementById("lb-img").src = src;
+  document.getElementById("lb").classList.add("open");
+}
+function closeLb() { document.getElementById("lb").classList.remove("open"); }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeLb(); });
+
+buildSections();
+buildNav();
+</script>
+</body>
+</html>

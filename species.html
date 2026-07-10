@@ -59,6 +59,13 @@
     position: sticky; top: 58px;
   }
   aside h2 { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .5rem; }
+  .sp-search-wrap { margin-bottom: .7rem; }
+  #sp-search {
+    width: 100%; padding: .5rem .7rem; font-size: .88rem; font-family: inherit;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: #fff; color: var(--text);
+  }
+  #sp-search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
   .sp-nav-list { list-style: none; }
   .sp-nav-list li a {
     display: flex; justify-content: space-between; align-items: center;
@@ -226,6 +233,10 @@
 <div class="layout">
   <aside>
     <h2>物種列表</h2>
+    <div class="sp-search-wrap">
+      <input id="sp-search" type="search" placeholder="🔍 搜尋物種或學名…"
+             oninput="searchSpecies(this.value)" autocomplete="off">
+    </div>
     <ul class="sp-nav-list" id="sp-nav"></ul>
   </aside>
   <main id="main-content"></main>
@@ -244,6 +255,8 @@ function buildNav() {
   const nav = document.getElementById("sp-nav");
   SPECIES.forEach((sp, i) => {
     const li = document.createElement("li");
+    li.className = "sp-nav-item";
+    li.dataset.search = `${sp.name||""} ${sp.latin||""}`.toLowerCase();
     li.innerHTML = `<a href="#sp-${i}">
       ${sp.name} <span class="cnt">${sp.count}</span>
     </a>`;
@@ -261,6 +274,19 @@ function buildNav() {
     });
   }, { threshold: 0.3 });
   document.querySelectorAll(".sp-section").forEach(s => observer.observe(s));
+}
+
+function searchSpecies(q) {
+  q = (q || "").trim().toLowerCase();
+  const items = document.querySelectorAll("#sp-nav .sp-nav-item");
+  const sections = document.querySelectorAll(".sp-section");
+  if (!q) {
+    items.forEach(li => li.style.display = "");
+    sections.forEach(s => s.style.display = "");
+    return;
+  }
+  items.forEach(li => li.style.display = (li.dataset.search || "").includes(q) ? "" : "none");
+  sections.forEach(s => s.style.display = (s.dataset.search || "").includes(q) ? "" : "none");
 }
 
 function buildSections() {
@@ -295,7 +321,8 @@ function buildSections() {
     const familyBadge = sp.family ? `<span class="badge">${sp.family}</span>` : "";
 
     return `
-    <section class="sp-section" id="sp-${i}">
+    <section class="sp-section" id="sp-${i}"
+      data-search="${escHtml(`${sp.name||""} ${sp.latin||""}`.toLowerCase())}">
       <div class="sp-header">
         <div>
           <div class="sp-name">${sp.name}</div>

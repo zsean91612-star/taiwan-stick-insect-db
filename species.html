@@ -36,6 +36,7 @@
     transition: background .15s;
   }
   nav.header-nav a:hover, nav.header-nav a.active { background: rgba(255,255,255,.2); color: white; }
+  nav.header-nav a.nav-admin { opacity: .8; }
   .save-btn {
     background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.5);
     color: white; padding: .28rem .85rem; border-radius: 999px;
@@ -225,6 +226,8 @@
     <a href="index.html">野外觀察紀錄</a>
     <a href="species.html" class="active">物種圖鑑</a>
     <a href="edu.html">教學文章</a>
+    <a href="quiz.html">物種測驗</a>
+    <a href="admin.html" class="nav-admin">🔒 後台</a>
     <button class="save-btn" onclick="exportNotes()">💾 儲存筆記</button>
   </nav>
 </header>
@@ -355,6 +358,14 @@ function buildSections() {
           </div>
         </div>` : ''}
 
+        ${sp._spNotes && sp._spNotes.length ? `
+        <div>
+          <div class="sp-section-label">🔧 後台補充特徵</div>
+          <div class="expert-notes-list">
+            ${sp._spNotes.map(n => `<div class="expert-note-item">${escHtml(n)}</div>`).join('')}
+          </div>
+        </div>` : ''}
+
         <div>
           <div class="sp-section-label">🔍 社群識別筆記</div>
           ${notesHtml}
@@ -408,8 +419,33 @@ function openLb(src) {
 function closeLb() { document.getElementById("lb").classList.remove("open"); }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeLb(); });
 
-buildSections();
-buildNav();
+// 後台修訂即時套用：優先讀 Firestore，失敗才用 overrides.json。
+// 竹節蟲物種頁用固定的 SPECIES_META，不做動態重組；只把 species_notes 套到對應物種
+// 顯示成「🔧 後台補充特徵」。record 改鑑定的即時反映做在 index.html 就好。
+async function fetchOverrides() {
+  try {
+    const cfg = await (await fetch("backend.json?_=" + Date.now())).json();
+    if (cfg && cfg.projectId && cfg.apiKey) {
+      const url = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/(default)/documents/${cfg.docPath}?key=${cfg.apiKey}`;
+      const r = await fetch(url);
+      if (r.ok) {
+        const j = await r.json();
+        const s = j.fields && j.fields.data && j.fields.data.stringValue;
+        return s ? JSON.parse(s) : { records: {}, species_notes: {} };
+      }
+      if (r.status === 404) return { records: {}, species_notes: {} };
+    }
+  } catch (e) { /* 後端未設定或失敗 → fallback */ }
+  try { const r = await fetch("overrides.json?_=" + Date.now()); if (r.ok) return await r.json(); } catch (e) {}
+  return { records: {}, species_notes: {} };
+}
+(async () => {
+  const ov = await fetchOverrides();
+  const spNotes = (ov && ov.species_notes) || {};
+  SPECIES.forEach(sp => { sp._spNotes = spNotes[sp.name] || []; });
+  buildSections();
+  buildNav();
+})();
 </script>
 </body>
 </html>

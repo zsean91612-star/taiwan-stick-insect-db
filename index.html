@@ -46,6 +46,7 @@
   .header-nav a:hover, .header-nav a.active {
     background: rgba(255,255,255,.2); color: white;
   }
+  .header-nav a.nav-admin { opacity: .8; }
   #total-badge {
     background: rgba(255,255,255,.2);
     border-radius: 999px;
@@ -152,6 +153,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .corrected-badge {
+    display: inline-block; margin-left: .35rem; vertical-align: middle;
+    font-size: .6rem; font-weight: 600; color: #fff; background: var(--accent2, #1b5e20);
+    border-radius: 4px; padding: .05rem .3rem;
   }
   .card-location {
     font-size: .8rem;
@@ -284,6 +290,7 @@
     <a href="species.html">物種圖鑑</a>
     <a href="edu.html">教學文章</a>
     <a href="quiz.html">物種測驗</a>
+    <a href="admin.html" class="nav-admin">🔒 後台</a>
   </nav>
   <div id="total-badge">— 筆</div>
 </header>
@@ -426,7 +433,7 @@ function renderGrid() {
       <div class="card" onclick="openModal(${POSTS.indexOf(p)})">
         ${imgHtml}
         <div class="card-body">
-          <div class="card-species">${p.species || "（物種未知）"}</div>
+          <div class="card-species">${p.species || "（物種未知）"}${p._corrected ? '<span class="corrected-badge">已修訂</span>' : ''}</div>
           ${p.location ? `<div class="card-location">${p.location}</div>` : ""}
           <div class="card-text">${p.text || ""}</div>
           <div class="card-meta">
@@ -473,8 +480,40 @@ document.getElementById("search").addEventListener("input", e => {
   renderGrid();
 });
 
-buildFilterLists();
-renderGrid();
+// 後台修訂：優先讀 Firestore（即時），失敗才用靜態 overrides.json。
+async function fetchOverrides() {
+  try {
+    const cfg = await (await fetch("backend.json?_=" + Date.now())).json();
+    if (cfg && cfg.projectId && cfg.apiKey) {
+      const url = `https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/(default)/documents/${cfg.docPath}?key=${cfg.apiKey}`;
+      const r = await fetch(url);
+      if (r.ok) {
+        const j = await r.json();
+        const s = j.fields && j.fields.data && j.fields.data.stringValue;
+        return s ? JSON.parse(s) : { records: {}, species_notes: {} };
+      }
+      if (r.status === 404) return { records: {}, species_notes: {} };
+    }
+  } catch (e) { /* 後端未設定或失敗 → fallback */ }
+  try { const r = await fetch("overrides.json?_=" + Date.now()); if (r.ok) return await r.json(); } catch (e) {}
+  return { records: {}, species_notes: {} };
+}
+async function loadOverrides() {
+  const ov = await fetchOverrides();
+  const recs = (ov && ov.records) || {};
+  for (const p of POSTS) {
+    const o = recs[p.post_id];
+    if (!o) continue;
+    if (o.species) p.species = o.species;
+    if (o.scientific !== undefined && o.scientific !== null) p.scientific = o.scientific;
+    p._corrected = true;
+  }
+}
+(async () => {
+  await loadOverrides();
+  buildFilterLists();
+  renderGrid();
+})();
 </script>
 </body>
 </html>

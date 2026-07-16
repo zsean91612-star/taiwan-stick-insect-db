@@ -2,7 +2,6 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="robots" content="noindex, nofollow"><meta name="googlebot" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>台灣竹節蟲物種圖鑑</title>
 <style>
@@ -214,6 +213,49 @@
   #lb.open { display:flex; }
   #lb img { max-width:92vw; max-height:90vh; border-radius:6px; object-fit:contain; }
   #lb-close { position:fixed; top:1rem; right:1.2rem; color:white; font-size:2rem; cursor:pointer; }
+
+  /* ── 手機版：側邊欄收合抽屜 ── */
+  .sb-toggle { display:none; }
+  .sb-backdrop { display:none; }
+  @media (max-width: 768px) {
+    header { flex-wrap:wrap; padding:.6rem .9rem; gap:.4rem; }
+    header h1 { font-size:1.02rem; }
+    header .subtitle { font-size:.72rem; }
+    .header-nav { margin-left:0; width:100%; gap:.35rem;
+      overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:.1rem; }
+    .header-nav a { font-size:.75rem; padding:.18rem .5rem; white-space:nowrap; }
+    .save-btn { font-size:.75rem; padding:.18rem .55rem; white-space:nowrap; }
+
+    .layout { display:block; }
+    aside {
+      position:fixed; top:0; left:0; bottom:0; height:100vh;
+      width:82%; max-width:300px; min-width:0; z-index:200;
+      transform:translateX(-100%); transition:transform .25s ease;
+      box-shadow:2px 0 16px rgba(0,0,0,.28); padding-top:1rem;
+    }
+    aside.open { transform:translateX(0); }
+    .sb-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:150; }
+    .sb-backdrop.open { display:block; }
+    .sb-toggle {
+      display:flex; align-items:center; gap:.4rem;
+      position:fixed; left:.9rem; bottom:.9rem; z-index:120;
+      background:var(--accent); color:#fff; border:none; border-radius:999px;
+      padding:.7rem 1.1rem; font-size:.9rem; font-weight:600; font-family:inherit;
+      box-shadow:0 3px 12px rgba(0,0,0,.3); cursor:pointer;
+    }
+
+    main { padding:.9rem .8rem; }
+    .sp-section { margin-bottom:1.2rem; scroll-margin-top:12px; }
+    .sp-header { padding:.85rem .95rem; gap:.7rem; }
+    .sp-name { font-size:1.18rem; }
+    .sp-latin { font-size:.82rem; }
+    .sp-count-badge { font-size:.78rem; }
+    .sp-count-badge strong { font-size:1.35rem; }
+    .sp-gallery { max-height:200px; }
+    .sp-gallery img { height:180px; }
+    .sp-body { padding:.9rem .95rem; gap:1rem; }
+    .notes-grid { grid-template-columns:1fr; }
+  }
 </style>
 </head>
 <body>
@@ -233,6 +275,9 @@
   </nav>
 </header>
 <div class="save-toast" id="toast">✅ species_notes.json 已下載，放到 data/ 資料夾後執行 bash update_website.sh 即可永久儲存</div>
+
+<button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()">☰ 物種列表</button>
+<div class="sb-backdrop" id="sb-backdrop" onclick="closeSidebar()"></div>
 
 <div class="layout">
   <aside>
@@ -418,7 +463,21 @@ function openLb(src) {
   document.getElementById("lb").classList.add("open");
 }
 function closeLb() { document.getElementById("lb").classList.remove("open"); }
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeLb(); });
+
+// ── 手機版側邊欄抽屜 ──
+function toggleSidebar() {
+  document.querySelector("aside").classList.toggle("open");
+  document.getElementById("sb-backdrop").classList.toggle("open");
+}
+function closeSidebar() {
+  document.querySelector("aside").classList.remove("open");
+  document.getElementById("sb-backdrop").classList.remove("open");
+}
+document.getElementById("sp-nav").addEventListener("click", e => {
+  if (e.target.closest("a")) closeSidebar();
+});
+
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeLb(); closeSidebar(); } });
 
 // 後台修訂即時套用：優先讀 Firestore，失敗才用 overrides.json。
 // 竹節蟲物種頁用固定的 SPECIES_META，不做動態重組；只把 species_notes 套到對應物種
